@@ -1,0 +1,69 @@
+# 🚀 loust-llm-mempipe
+
+> Compile noisy LLM exports (ChatGPT, Claude, Gemini) into token-efficient JSONL + Markdown for Claude Code, Projects, and agent runtimes.
+
+**Status: skeleton (F1 complete, F2-F7 in progress).** The CLI surface is a placeholder; the contract types and dependencies are in place.
+
+## The problem
+
+You export 50 MB of `conversations.json` from ChatGPT. Now you have a JSON file full of OpenAI message IDs, internal mapping UUIDs, and duplicate threads. Pasting it into Claude Projects or `claude-code --context` burns tokens and dilutes attention. The same applies to Claude Web takeouts, Gemini takeouts, and your local Claude Code JSONL sessions.
+
+## What this does
+
+A single-binary Rust CLI that:
+
+- 🔍 Strips UI noise, system prompts, and broken/empty messages
+- 🛡️ Redacts secrets and PII (Rule E gate) before anything touches disk
+- 🧬 Deduplicates via FNV-1a hashing + Jaccard token similarity (threshold 0.85)
+- 📊 Scores each memory with `0.4·hits + 0.3·recency + 0.3·type_weight`
+- 📦 Outputs `.jsonl` (Claude Code ready) and/or hierarchical `.md` (Claude Projects ready)
+
+## Install (planned)
+
+```bash
+cargo install loust-llm-mempipe
+# or download a binary from Releases (post-v0.1.0)
+```
+
+## Usage (planned)
+
+```bash
+# 1. Export from ChatGPT: Settings → Data Controls → Export Data
+#    Unzip and find conversations.json
+
+# 2. Pipe it through mempipe:
+loust-llm-mempipe \
+  --input conversations.json \
+  --output ./claude-memory/ \
+  --format jsonl \
+  --stats
+
+# 3. Point Claude Code at it:
+claude-code --context ./claude-memory/memory.jsonl
+```
+
+## Project status
+
+| Phase | Scope | Status |
+|---|---|---|
+| F0.1 | Pre-publish audit (gh search) | ✅ done |
+| F0.2 | Org hardening (2FA + member privileges) | ⚠️ partial — 2FA via UI |
+| F1 | Skeleton + Cargo.toml + contracts | ✅ done (this commit) |
+| F2 | ChatGPT adapter (MVP) | ⏸️ next |
+| F3 | Pipeline core (scrubber + dedup + signals + writer) | ⏸️ |
+| F4 | CLI ergonomics | ⏸️ |
+| F5 | Validation (clippy + tests + smoke) | ⏸️ |
+| F6 | Staging manifest | ⏸️ |
+| F7 | Reddit comment (post-push) | ⏸️ |
+
+## Build (current skeleton)
+
+```bash
+make all        # fmt-check + clippy + test + build
+make release    # release binary
+make info       # print build metadata
+```
+
+## License
+
+MIT OR Apache-2.0

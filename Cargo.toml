@@ -1,0 +1,60 @@
+[package]
+name = "loust-llm-mempipe"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Compile noisy LLM exports (ChatGPT, Claude, Gemini) into token-efficient JSONL + Markdown for Claude Code, Projects, and agent runtimes."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/LOUST-PRO/loust-llm-mempipe"
+readme = "README.md"
+keywords = ["llm", "memory", "chatgpt", "claude", "context", "jsonl", "claude-code", "mcp", "agents"]
+categories = ["command-line-utilities", "text-processing", "development-tools::profiling"]
+authors = ["LOUST-PRO <opensource@loust.pro>"]
+exclude = [".github/", "target/", "*.log", "CHANGELOG.md.bak"]
+
+[lib]
+name = "loust_llm_mempipe"
+path = "src/lib.rs"
+
+[[bin]]
+name = "loust-llm-mempipe"
+path = "src/main.rs"
+
+[dependencies]
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Time
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock"] }
+
+# Hashing (FNV-1a family) + content addressing
+seahash = "4"
+sha2 = "0.10"
+
+# Patterns (Rule E scrubber)
+regex = "1"
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# CLI (F4 will use these; declared now to lock dependencies)
+clap = { version = "4", features = ["derive", "env"] }
+
+# Async IO (for streaming large exports in F2/F3)
+tokio = { version = "1", features = ["fs", "io-util", "rt-multi-thread", "macros"] }
+
+# Progress bars for large exports (used in F3)
+indicatif = "0.17"
+
+[dev-dependencies]
+assert-json-diff = "2"
+tempfile = "3"
+pretty_assertions = "1"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
