@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# Read-only access is enough for CI. No secrets, no write tokens.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: fmt + clippy + test
+    runs-on: ubuntu-latest
+    strategy:
+      # Don't cancel the other matrix entries on first failure — we
+      # want to see if beta also breaks even when stable passes.
+      fail-fast: false
+      matrix:
+        rust:
+          - stable
+          - beta
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install rust ${{ matrix.rust }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          # Cache both the registry and the build target.
+          workspaces: target
+          shared-key: ${{ matrix.rust }}
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --all-targets --verbose
+
+      - name: cargo build --release
+        # Smoke-build the release binary so the path is exercised.
+        # The release build is what `cargo install` will compile.
+        run: cargo build --release
+        env:
+          # Quiet down release-build terminal output.
+          CARGO_TERM_PROGRESS_WHEN: never

@@ -6,6 +6,30 @@ All notable changes to loust-llm-mempipe are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-06-11
+
+### Added
+- F5: GitHub Actions CI workflow at `.github/workflows/ci.yml`. Runs on
+  every push to `main` and on every pull request. Matrix with
+  `stable` + `beta` toolchains. Steps: `cargo fmt --check`,
+  `cargo clippy --all-targets -- -D warnings`, `cargo test --all-targets`,
+  `cargo build --release`. Uses `Swatinem/rust-cache@v2` to cache the
+  cargo registry and build target. Minimal permissions (`contents:
+  read` only). No secrets, no write tokens.
+- F5: README CI badge in the header — links to the workflow run history.
+
+### Notes
+- CI is the last public-MVP phase. Subsequent work would be:
+  - Adding release automation (build on tag, attach binaries to
+    GitHub release)
+  - Adding a `cargo audit` step for known-vulnerable deps
+  - Adding code coverage (cargo-tarpaulin → codecov or similar)
+  - Adding docs.rs config so the library API is browsable online
+- Validation: `cargo fmt --check` clean, `cargo clippy --all-targets
+  -- -D warnings` clean, `cargo test` 61/61 pass, `cargo build
+  --release` 12s. Workflow YAML validated for parse-correctness;
+  first end-to-end run will fire on the v0.5.0 push.
+
 ## [0.4.0] — 2026-06-11
 
 ### Added

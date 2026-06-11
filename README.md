@@ -1,8 +1,12 @@
 # 🚀 loust-llm-mempipe
 
+[![CI](https://github.com/LOUST-PRO/loust-llm-mempipe/actions/workflows/ci.yml/badge.svg)](https://github.com/LOUST-PRO/loust-llm-mempipe/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/loust-llm-mempipe.svg)](https://crates.io/crates/loust-llm-mempipe)
+[![MIT/Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+
 > Compile noisy LLM exports (ChatGPT, Claude, Gemini) into token-efficient JSONL + Markdown for Claude Code, Projects, and agent runtimes.
 
-**Status: skeleton (F1 complete, F2-F7 in progress).** The CLI surface is a placeholder; the contract types and dependencies are in place.
+**Status: MVP complete (F1–F5 shipped).** The CLI surface is stable; the contract types are public; CI is green.
 
 ## The problem
 
@@ -52,7 +56,7 @@ claude-code --context ./claude-memory/memory.jsonl
 | F2 | ChatGPT adapter MVP | ✅ done ([v0.2.0](https://github.com/LOUST-PRO/loust-llm-mempipe/releases/tag/v0.2.0)) |
 | F3 | Pipeline core (scrubber + dedup + signals + writer) | ✅ done ([v0.3.0](https://github.com/LOUST-PRO/loust-llm-mempipe/releases/tag/v0.3.0)) |
 | F4 | CLI ergonomics | ✅ done ([v0.4.0](https://github.com/LOUST-PRO/loust-llm-mempipe/releases/tag/v0.4.0)) |
-| F5 | Validation (CI + smoke E2E) | ⏸️ next |
+| F5 | Validation (CI + smoke E2E) | ✅ done ([v0.5.0](https://github.com/LOUST-PRO/loust-llm-mempipe/releases/tag/v0.5.0)) |
 | F7 | Public release announcement | ⏸️ (user opted out for now) |
 
 ## Build (current skeleton)
