@@ -30,6 +30,17 @@ impl AdapterKind {
             Self::ClaudeCode => "claude_code",
         }
     }
+
+    /// Parse from the kebab-case CLI form. Returns None for unknown values.
+    pub fn from_cli(s: &str) -> Option<Self> {
+        match s {
+            "chatgpt" => Some(Self::ChatGpt),
+            "claude_web" => Some(Self::ClaudeWeb),
+            "gemini" => Some(Self::Gemini),
+            "claude_code" => Some(Self::ClaudeCode),
+            _ => None,
+        }
+    }
 }
 
 /// A source-specific parser that streams `NormalizedMessage`s out of a
@@ -53,4 +64,31 @@ pub trait Adapter {
         &self,
         reader: Box<dyn Read>,
     ) -> anyhow::Result<Box<dyn Iterator<Item = NormalizedMessage>>>;
+}
+
+/// Registry of all known adapters, in priority order for auto-detection.
+/// When the user does NOT pass `--adapter`, the CLI walks this list and
+/// picks the first adapter whose `detect()` returns true on the file
+/// header. The first match wins; if you add an adapter that overlaps
+/// with an existing one, put the more specific one first.
+pub fn registry() -> Vec<Box<dyn Adapter>> {
+    vec![
+        Box::new(chatgpt::ChatGptAdapter),
+        // F5+: Box::new(claude_web::ClaudeWebAdapter),
+        // F5+: Box::new(gemini::GeminiAdapter),
+        // F5+: Box::new(claude_code::ClaudeCodeAdapter),
+    ]
+}
+
+/// Pick an adapter for a file. If `kind` is `Some`, returns the adapter
+/// of that kind (or `None` if the registry doesn't have it). If `None`,
+/// walks the registry and returns the first adapter that detects the
+/// header. Returns `None` if no adapter matches.
+pub fn pick_adapter(kind: Option<AdapterKind>, header: &[u8]) -> Option<Box<dyn Adapter>> {
+    let all = registry();
+    if let Some(k) = kind {
+        all.into_iter().find(|a| a.kind() == k)
+    } else {
+        all.into_iter().find(|a| a.detect(header))
+    }
 }

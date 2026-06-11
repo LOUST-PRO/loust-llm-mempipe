@@ -16,6 +16,19 @@ pub enum OutputFormat {
     Both,
 }
 
+impl OutputFormat {
+    /// Parse from the kebab-case CLI form. Accepted values: `jsonl`,
+    /// `markdown` (or `md`), `both`. Returns `None` for anything else.
+    pub fn from_cli(s: &str) -> Option<Self> {
+        match s.to_ascii_lowercase().as_str() {
+            "jsonl" | "json" => Some(Self::Jsonl),
+            "md" | "markdown" => Some(Self::Markdown),
+            "both" | "all" => Some(Self::Both),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct PipelineConfig {
     /// Jaccard token similarity threshold (0.0-1.0) above which two

@@ -6,6 +6,53 @@ All notable changes to loust-llm-mempipe are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-11
+
+### Added
+- F4: clap CLI surface in `src/main.rs` (was a stub in 0.1.0-0.3.0).
+  Flags:
+  - `-i, --input <PATH>` (required) — raw export file
+  - `-o, --output <DIR>` (required) — output dir, created if missing
+  - `-f, --format <jsonl|markdown|both>` (default `jsonl`)
+  - `--adapter <chatgpt|claude_web|gemini|claude_code>` (default: auto-detect)
+  - `--dedup-threshold <FLOAT>` (default 0.85)
+  - `--signal-min <FLOAT>` (default 0.2)
+  - `--max-age-days <INT>` (default 1095)
+  - `--stats` — print one-line stats to stderr
+  - `--dry-run` — compute but don't write
+  - `--info` — print build metadata and exit
+  - `--version`, `--help` — clap defaults
+- F4: `loust_llm_mempipe::adapter::registry()` — ordered list of all
+  known adapters for auto-detection.
+- F4: `loust_llm_mempipe::adapter::pick_adapter(kind, header)` —
+  returns the adapter for an explicit kind, or the first adapter whose
+  `detect()` matches the header. Used by the CLI to auto-select.
+- F4: `OutputFormat::from_cli(s)` and `AdapterKind::from_cli(s)` —
+  kebab-case parsers used by clap's `value_parser`.
+- F4: stderr progress lines on every run: `detected adapter: <kind>`,
+  `parsed N messages`, `stats: <one-line>`, `wrote: <path>`, `done: N
+  files written`. Mirrors what humans want when running interactively.
+- F4: Exit code 0 on success, non-zero on any error (clap parse,
+  missing input file, unsupported adapter). Surfaces errors via
+  `anyhow` with file-path context.
+- F4: Integration test `tests/cli_e2e.rs` — 9 tests that shell out to
+  the built binary with the real ChatGPT fixture. Covers `--version`,
+  `--help`, `--info`, full run with `--format both --stats`, dry-run,
+  explicit `--adapter chatgpt`, rejection of unknown format / adapter,
+  graceful failure on missing input.
+
+### Notes
+- Library API: `Adapter` trait, `AdapterKind` enum, and `registry()` /
+  `pick_adapter()` are stable since 0.4.0. `OutputFormat::from_cli`
+  and `AdapterKind::from_cli` are new.
+- The CLI is now feature-complete for the public MVP. The remaining
+  phases (F5 CI, F7 marketing) are not blockers for downstream
+  consumption.
+- Validation: `cargo fmt --check` clean, `cargo clippy --all-targets
+  -- -D warnings` clean, `cargo test` 61/61 pass (44 lib + 4 main clap +
+  9 cli_e2e + 4 e2e), `cargo build --release` ~12s, smoke test
+  against the real fixture produces `memory.jsonl` + 2 Markdown files.
+
 ## [0.3.0] — 2026-06-11
 
 ### Added
